@@ -1,3 +1,4 @@
+import java.util.EmptyStackException;
 import java.util.Scanner;
 import java.util.Stack;
 
@@ -20,16 +21,13 @@ public class Main {
         return pile.peek();
     }
 
-    public static Stack<String> traitement(Stack<String> pile, String op) {
-        String ch = "bonjour";
+    public static Stack<String> traitement(Stack<String> pile, String op) throws EmptyStackException, IllegalArgumentException {
 
         try {
             Double.parseDouble(op);
             pile.add(op);
         } catch (NumberFormatException e) {
 
-            double d = 9;
-            Math.sqrt(d);
             if (op.equals("+")) {
                 double op1 = Double.parseDouble(pile.pop());
                 double op2 = Double.parseDouble(pile.pop());
@@ -74,17 +72,22 @@ public class Main {
                 double op1 = Double.parseDouble(pile.pop());
                 double op2 = Double.parseDouble(pile.pop());
                 pile.push(String.valueOf(Math.pow(op2, op1)));
+            } else if (op.equals("!")) {
+                double op1 = Double.parseDouble(pile.pop());
+                double res = Gamma.gamma(op1);
+                pile.push(String.valueOf(res));
+
             } else if (op.equals("pile")) {
                 System.out.println(pile.toString());
             } else if (op.equals("trace")) {
                 trace = true;
             } else if (op.equals("notrace")) {
                 trace = false;
-            } else{
+            } else {
                 System.out.println("Saisie incorrecte");
             }
         }
-        if(trace){
+        if (trace) {
             System.out.println(pile.toString());
         }
         return pile;
@@ -98,10 +101,23 @@ public class Main {
                 op += String.valueOf(s.charAt(i));
                 i++;
             }
-            traitement(pile, op);
+            try {
+                traitement(pile, op);
+            } catch (EmptyStackException e) {
+                System.out.println("formule incorrecte");
+                return Double.NaN;
+            } catch (IllegalArgumentException e) {
+                System.out.println("La fonction d'Euler est applicable pour les réels strictement positifs");
+                return Double.NaN;
+            }
         }
-        System.out.println(sommet(pile));
-        return Double.parseDouble(sommet(pile));
+        if (pile.size() == 1) {
+            System.out.println(sommet(pile));
+            return Double.parseDouble(sommet(pile));
+        } else {
+            System.out.println("formule incorrecte");
+            return Double.NaN;
+        }
 
     }
 
@@ -111,7 +127,14 @@ public class Main {
         Scanner sc = new Scanner(System.in);
         do {
             res = sc.nextLine();
-            traitement(pile, res);
+            try {
+                traitement(pile, res);
+            } catch (EmptyStackException e) {
+                System.out.println("Vous ne pouvez pas effectuer cette opération, la pile est vide");
+            } catch (IllegalArgumentException e) {
+                System.out.println("La fonction d'Euler est applicable pour les réels strictement positifs");
+            }
+
         } while (!res.equals("stop"));
     }
 
